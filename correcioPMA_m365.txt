@@ -1,0 +1,23 @@
+El error que estás experimentando se debe a que la cuenta de usuario está siendo administrada y sincronizada a través de tu Active Directory (AD) local utilizando Azure AD Connect. Cualquier cambio que desees hacer en este usuario debe hacerse en tu Active Directory local, en lugar de hacerlo directamente en Azure AD o M365.
+
+Aquí te dejo un proceso paso a paso que podría ayudarte a resolver este problema:
+
+1. Comienza por ir al Active Directory local y busca el objeto de usuario en cuestión.
+
+2. Verifica los atributos de ese objeto de usuario. En particular, asegúrate de comprobar el atributo `proxyAddresses`. Este atributo debería tener un valor `SMTP:usuario@saucand.com` para la dirección SMTP principal y `smtp:alias@saucand.onmicrosoft.com` para la dirección de alias.
+
+3. Si el atributo `proxyAddresses` está correctamente configurado (es decir, el valor es `SMTP:usuario@saucand.com`), pero el cambio aún no se refleja en el tenant de M365, esto podría deberse a problemas con la sincronización de Azure AD Connect.
+
+4. En tal caso, debería verificar si la sincronización de Azure AD Connect se está ejecutando correctamente. Puedes forzar manualmente una sincronización de Azure AD Connect y ver si resuelve el problema. Aquí te dejo cómo hacerlo:
+
+    a. Inicia PowerShell como administrador en el servidor donde se ejecuta AD Connect.
+
+    b. Ejecuta el siguiente comando para importar el módulo AD Connect: `Import-Module ADSync`
+
+    c. Luego, para iniciar la sincronización, ejecuta: `Start-ADSyncSyncCycle -PolicyType Delta`
+
+Espera a que se complete la sincronización y, a continuación, comprueba si se ha reflejado el cambio en el tenant de M365.
+
+Si el problema persiste a pesar de estos pasos, podría valer la pena reexaminar el valor en el atributo `mail` y `userPrincipalName`. Si alguno de estos atributos tiene el valor incorrecto, podría estar causando el problema. Además, asegúrate de que Azure AD Connect esté configurado para sincronizar estos atributos.
+
+Por favor, trata con estos pasos y procedimientos, si el problema persiste, podría ser útil tener el apoyo de soporte técnico adicional para investigar el problema con más profundidad.   
